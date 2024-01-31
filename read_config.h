@@ -50,7 +50,7 @@ char *read_config(FILE *cfg, char option[]) {
                 printf("Count %i", i);               
         }
         
-        return &finalvalue;
+        return finalvalue;
 }
 
 void close_config(FILE *cfg) {
