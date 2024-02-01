@@ -3,6 +3,7 @@
 #include <getopt.h>
 #include <stdbool.h>
 #include <string.h>
+#include <unistd.h>
 
 #define AUTHOR "Luke Haase"
 #define VERSION 1.0
@@ -21,6 +22,7 @@ enum Returncodes {
 // Arguments
 static struct option longopts[] = {
     {"bind-config-directory", required_argument, 0, 'b'},
+    {"nameserver", required_argument, 0, 'n'},
     {"warning", required_argument, 0, 'w'},
     {"critical", required_argument, 0, 'c'},
     {"help", no_argument, 0, 'h'},
@@ -37,24 +39,24 @@ void print_help();
 
 int main(int argc, char *argv[]) {
 
-    
-
     // Argument options
     int opt;
-    char zonedirectory[2048]="/var/lib/bind/";
+    char zonedirectory[2048]="/var/lib/bind/", nameserver[2048]="";
     int warningitems=1, criticalitems=2, timeout_interval=60;
     bool verbose=false;
 
     int long_index = 0;
-    while ((opt = getopt_long(argc, argv, "b:w:c:hVvt:", longopts, &long_index)) != -1) {
+    while ((opt = getopt_long(argc, argv, "b:n:w:c:hVvt:", longopts, &long_index)) != -1) {
             switch (opt) {
                     case 'b' : strcpy(zonedirectory, optarg);
+                            break;
+                    case 'n' : strcpy(nameserver, optarg);
                             break;
                     case 'w' : warningitems = atoi(optarg);
                             break;
                     case 'c' : criticalitems = atoi(optarg);
                             break;
-                    case 'h' : 
+                    case 'h' : strcpy(nameserver, optarg);
                             break;
                     case 'V' : printf("%s \nVersion: %.1f\n", PROGNAME, VERSION);
                             exit(EXIT_SUCCESS);
@@ -67,7 +69,12 @@ int main(int argc, char *argv[]) {
             }
     }
 
-    printf("Arguments \nConfig directory: %s, Warning: %i, Critical: %i, Timeout: %i\n", zonedirectory, warningitems, criticalitems, timeout_interval);
+    alarm(timeout_interval);
+    if (true == verbose) {printf("Arguments \nConfig directory: %s, Nameserver: %s, Warning: %i, Critical: %i, Timeout: %i\n\n", zonedirectory, nameserver, warningitems, criticalitems, timeout_interval);}
+
+    // Checks if nameserver is specified https://stackoverflow.com/a/50188561
+    if (!*nameserver) {print_usage(); printf("CRITICAL: No nameserver specified!"); exit(CRITICAL);}
+
 
     return 0;
 }
