@@ -19,7 +19,7 @@ FILE *open_config(char filename[]) {
 char *read_config(FILE *cfg, char option[]) {
         char *line = NULL;
         size_t len = 0;
-        ssize_t read;
+        size_t read;
         char delim = '='; /*Represents an = in ASCII*/
         char *array[6];
         int lines = countlines(cfg);
@@ -31,10 +31,9 @@ char *read_config(FILE *cfg, char option[]) {
         if (NULL == cfg) {
                 return "";
         }
-        //while ((read = getline(&line, &len, cfg)) != -1) {
-        for (int n = 0; n < lines; n++) {
+        while ((read = getline(&line, &len, cfg)) != -1) {
                 int i = 0;
-
+                printf("ok");
                 char *value = strtok(line, &delim);
                 while (value != NULL) {
                         array[i++] = value;
