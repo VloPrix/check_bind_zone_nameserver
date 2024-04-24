@@ -10,6 +10,8 @@
 
 # Directory for the .hosts Files
 ZONE_DIR=/var/lib/bind/*
+# File containing the zones
+NAMED_CONF=$(</etc/bind/named.conf.local)
 # https://www.reddit.com/r/linuxadmin/comments/vsqxvz/script_to_check_if_you_are_still_authoritative/
 # Change the domain example.com to an own domain with correct NS Records
 CORRECT_DOMAIN_DNS_MD5SUM=$(dig @1.1.1.1 +short -t NS example.com | sort | md5sum)
@@ -36,7 +38,13 @@ isExcluded () {
   return 1
 }
 
-
+isInNamedPresent() {
+  if [[ $NAMED_CONF == *"$1"* ]]
+  then
+    return 0
+  fi
+  return 1
+}
 
 for file in $ZONE_DIR
 do
@@ -48,7 +56,7 @@ do
   if [ $ISEXCLUDED -eq 0 ]; then
     continue
   fi
-  if [[ "$MD5SUM" != "$CORRECT_DOMAIN_DNS_MD5SUM" ]]; then
+  if [[ "$MD5SUM" != "$CORRECT_DOMAIN_DNS_MD5SUM" ]] && [ $ISPRESENT -eq 0 ]; then
     ERROR_DOMAIN_COUNT=$((++ERROR_DOMAIN_COUNT))
     ERROR_DOMAIN_LIST="$ERROR_DOMAIN_LIST$DOMAIN, "
   fi
