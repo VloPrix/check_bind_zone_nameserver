@@ -56,6 +56,8 @@ do
   if [ $ISEXCLUDED -eq 0 ]; then
     continue
   fi
+  isInNamedPresent $DOMAIN
+  ISPRESENT=$?
   if [[ "$MD5SUM" != "$CORRECT_DOMAIN_DNS_MD5SUM" ]] && [ $ISPRESENT -eq 0 ]; then
     ERROR_DOMAIN_COUNT=$((++ERROR_DOMAIN_COUNT))
     ERROR_DOMAIN_LIST="$ERROR_DOMAIN_LIST$DOMAIN, "
