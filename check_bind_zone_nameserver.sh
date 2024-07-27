@@ -3,8 +3,8 @@
 #	Nagios Check for checking if the Zones of the local bind server resolves to the correct NS
 #
 #	Author: Luke Haase
-#	Date: 23.04.2024
-#	Version: 1.0
+#	Date: 28.07.2024
+#	Version: 1.1
 
 ################## CONFIGURATION ############################################
 
