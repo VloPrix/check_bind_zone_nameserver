@@ -50,17 +50,22 @@ for file in $ZONE_DIR
 do
   DOMAIN="${file##*/}"
   DOMAIN=${DOMAIN/".hosts"/}
-  MD5SUM=$(dig @1.1.1.1 +short -t NS $DOMAIN | sort | md5sum)
-  isExcluded $DOMAIN
-  ISEXCLUDED=$?
-  if [ $ISEXCLUDED -eq 0 ]; then
-    continue
-  fi
-  isInNamedPresent $DOMAIN
+
+  isExcluded "$DOMAIN"
+  [[ $? -eq 0 ]] && continue
+
+  isInNamedPresent "$DOMAIN"
   ISPRESENT=$?
-  if [[ "$MD5SUM" != "$CORRECT_DOMAIN_DNS_MD5SUM" ]] && [ $ISPRESENT -eq 0 ]; then
-    ERROR_DOMAIN_COUNT=$((++ERROR_DOMAIN_COUNT))
-    ERROR_DOMAIN_LIST="$ERROR_DOMAIN_LIST$DOMAIN, "
+  [[ $ISPRESENT -ne 0 ]] && continue
+  
+  NS_RECORDS=$(dig @1.1.1.1 +short NS "$DOMAIN" | sort)
+  [[ -z "$NS_RECORDS" ]] && continue
+
+  MD5SUM=$(printf "%s\n" "$NS_RECORDS" | md5sum)
+
+  if [[ "$MD5SUM" != "$EINFO_DNS_MD5SUM" ]]; then
+     ERROR_DOMAIN_COUNT=$((ERROR_DOMAIN_COUNT + 1))
+     ERROR_DOMAIN_LIST+="$DOMAIN, "
   fi
 done
 
